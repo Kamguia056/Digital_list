@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1027367631986",
+    "project_id": "dlist-a357d",
+    "storage_bucket": "dlist-a357d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1027367631986:android:797999898369d0a19f56eb",
+        "android_client_info": {
+          "package_name": "com.example.dlist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArY6oRrCqGncPwLda1hHvAVGGWj9a2VUY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
