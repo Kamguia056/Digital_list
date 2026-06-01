@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../services/firebase_service.dart';
+
 
 class TeacherRequestScreen extends StatefulWidget {
   const TeacherRequestScreen({super.key});
@@ -11,6 +13,9 @@ class TeacherRequestScreen extends StatefulWidget {
 
 class _TeacherRequestScreenState extends State<TeacherRequestScreen> {
   final _formKey = GlobalKey<FormState>();
+  final FirebaseService _firebaseService = FirebaseService();
+  bool _isLoading = false;
+
   
   String _nom = '';
   String _email = '';
@@ -239,7 +244,48 @@ class _TeacherRequestScreenState extends State<TeacherRequestScreen> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: _isLoading ? null : () async {
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;
+                            });
+                            try {
+                              await _firebaseService.submitTeacherRequest(
+                                name: _nom,
+                                email: _email,
+                                phone: _telephone,
+                                diploma: _diplome,
+                                localImagePath: _carteImage?.path,
+                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Demande envoyée ! Un administrateur va la valider. Utilisez le code d\'invitation TEACH-XXXX reçu.'),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 6),
+                                  ),
+                                );
+                                // Rediriger vers l'écran d'inscription définitive enseignant
+                                Navigator.pushReplacementNamed(context, '/teacher_register');
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Erreur : ${e.toString()}'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                            }
+                          }
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.blue,
@@ -247,10 +293,12 @@ class _TeacherRequestScreenState extends State<TeacherRequestScreen> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Text(
-                          'ENVOYER MA DEMANDE',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.blue)
+                            : const Text(
+                                'ENVOYER MA DEMANDE',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ),
                   ],

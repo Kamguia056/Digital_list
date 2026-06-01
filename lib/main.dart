@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/student_register_screen.dart'; 
@@ -11,7 +12,13 @@ import 'screens/teacher_qr_screen.dart';
 import 'screens/teacher_profile_screen.dart';
 import 'screens/teacher_home_screen.dart';
 
-void main() {
+import 'screens/admin_home_screen.dart';
+import 'screens/admin_users_screen.dart';
+import 'screens/admin_session_detail_screen.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -36,6 +43,14 @@ class MyApp extends StatelessWidget {
         '/teacher_qr': (context) => const TeacherQRScreen(),
         '/teacher_profile': (context) => const TeacherProfileScreen(),
         '/teacher_home': (context) => const TeacherHomeScreen(),
+        '/admin_home': (context) => const AdminHomeScreen(),
+        '/admin_users': (context) => const AdminUsersScreen(),
+        '/admin_session_detail': (context) => const AdminSessionDetailScreen(
+          sessionId: '',
+          courseName: '',
+          room: '',
+          teacherName: '',
+        ),
       },
       theme: ThemeData(
         primaryColor: Colors.blue,
