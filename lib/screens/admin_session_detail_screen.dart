@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:animate_do/animate_do.dart';
 import '../services/firebase_service.dart';
+import '../theme/app_theme.dart';
 
 class AdminSessionDetailScreen extends StatelessWidget {
   final String sessionId;
@@ -21,39 +23,76 @@ class AdminSessionDetailScreen extends StatelessWidget {
     final FirebaseService firebaseService = FirebaseService();
 
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
         title: Text(courseName),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: Column(
         children: [
           // Entête info séance
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            color: Colors.deepPurple.shade50,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(children: [
-                  const Icon(Icons.location_on, color: Colors.deepPurple, size: 18),
-                  const SizedBox(width: 6),
-                  Text('Salle : $room', style: const TextStyle(fontWeight: FontWeight.bold)),
-                ]),
-                const SizedBox(height: 4),
-                Row(children: [
-                  const Icon(Icons.person, color: Colors.deepPurple, size: 18),
-                  const SizedBox(width: 6),
-                  Text('Enseignant : $teacherName'),
-                ]),
-                const SizedBox(height: 4),
-                Row(children: [
-                  const Icon(Icons.tag, color: Colors.deepPurple, size: 18),
-                  const SizedBox(width: 6),
-                  Text('Code : $sessionId', style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
-                ]),
-              ],
+          FadeInDown(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                border: const Border(bottom: BorderSide(color: AppTheme.border)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.location_on_rounded, color: AppTheme.primary, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Text('Salle : $room', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.textPrimary)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: AppTheme.success.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.person_rounded, color: AppTheme.success, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Text('Enseignant : $teacherName', style: const TextStyle(fontSize: 15, color: AppTheme.textSecondary)),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.tag_rounded, color: Colors.orange, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: AppTheme.background, borderRadius: BorderRadius.circular(6)),
+                        child: Text(sessionId, style: const TextStyle(fontSize: 13, fontFamily: 'monospace', fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -63,7 +102,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
               stream: firebaseService.getSessionAttendance(sessionId),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 final docs = snapshot.data?.docs ?? [];
@@ -73,9 +112,9 @@ class AdminSessionDetailScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline, size: 80, color: Colors.grey.shade300),
+                        Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
                         const SizedBox(height: 16),
-                        const Text('Aucun étudiant présent.', style: TextStyle(color: Colors.grey)),
+                        const Text('Aucun étudiant présent.', style: TextStyle(color: AppTheme.textSecondary)),
                       ],
                     ),
                   );
@@ -84,45 +123,60 @@ class AdminSessionDetailScreen extends StatelessWidget {
                 return Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Présents', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text('Présents', style: Theme.of(context).textTheme.displaySmall),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.green.shade100,
-                              borderRadius: BorderRadius.circular(12),
+                              color: AppTheme.success.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text('${docs.length}',
-                                style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+                            child: Text(
+                              '${docs.length}',
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.success, fontSize: 14),
+                            ),
                           ),
                         ],
                       ),
                     ),
                     Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                         itemCount: docs.length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final data = docs[index].data() as Map<String, dynamic>;
                           final name = data['studentName'] ?? 'Inconnu';
                           final email = data['studentEmail'] ?? '';
                           final time = (data['scannedAt'] as Timestamp?)?.toDate();
-                          final timeStr = time != null
-                              ? '${time.hour}:${time.minute.toString().padLeft(2, '0')}'
-                              : '--:--';
+                          final timeStr = time != null ? '${time.hour}h${time.minute.toString().padLeft(2, '0')}' : '--:--';
 
-                          return ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.check, color: Colors.white, size: 18),
+                          return FadeInUp(
+                            delay: Duration(milliseconds: index * 50),
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: AppTheme.surface,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: AppTheme.border),
+                              ),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                leading: Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppTheme.success.withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.check_rounded, color: AppTheme.success, size: 18),
+                                ),
+                                title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                                subtitle: Text(email, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                                trailing: Text(timeStr, style: const TextStyle(color: AppTheme.textSecondary, fontWeight: FontWeight.w500)),
+                              ),
                             ),
-                            title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Text(email, style: const TextStyle(fontSize: 12)),
-                            trailing: Text(timeStr, style: const TextStyle(color: Colors.grey)),
                           );
                         },
                       ),

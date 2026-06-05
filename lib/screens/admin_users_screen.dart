@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:animate_do/animate_do.dart';
 import '../services/firebase_service.dart';
+import '../theme/app_theme.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -9,8 +11,7 @@ class AdminUsersScreen extends StatefulWidget {
   State<AdminUsersScreen> createState() => _AdminUsersScreenState();
 }
 
-class _AdminUsersScreenState extends State<AdminUsersScreen>
-    with SingleTickerProviderStateMixin {
+class _AdminUsersScreenState extends State<AdminUsersScreen> with SingleTickerProviderStateMixin {
   final FirebaseService _firebaseService = FirebaseService();
   late TabController _tabController;
 
@@ -28,22 +29,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen>
 
   Widget _buildUserList(String role) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: role)
-          .snapshots(),
+      stream: FirebaseFirestore.instance.collection('users').where('role', isEqualTo: role).snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: Colors.deepPurple));
-        }
+        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.people_outline, size: 80, color: Colors.grey.shade300),
+                Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
                 const SizedBox(height: 16),
-                Text('Aucun $role inscrit.', style: const TextStyle(color: Colors.grey)),
+                Text('Aucun $role inscrit.', style: const TextStyle(color: AppTheme.textSecondary)),
               ],
             ),
           );
@@ -52,7 +48,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen>
         final docs = snapshot.data!.docs;
 
         return ListView.builder(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(24),
           itemCount: docs.length,
           itemBuilder: (context, index) {
             final data = docs[index].data() as Map<String, dynamic>;
@@ -61,69 +57,82 @@ class _AdminUsersScreenState extends State<AdminUsersScreen>
             final email = data['email'] ?? '';
             final isBlocked = data['isBlocked'] == true;
 
-            return Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 6),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                leading: CircleAvatar(
-                  backgroundColor: isBlocked
-                      ? Colors.red.shade100
-                      : (role == 'teacher' ? Colors.green.shade100 : Colors.blue.shade100),
-                  child: Icon(
-                    role == 'teacher' ? Icons.school : Icons.person,
-                    color: isBlocked
-                        ? Colors.red
-                        : (role == 'teacher' ? Colors.green : Colors.blue),
-                  ),
-                ),
-                title: Text(
-                  name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isBlocked ? Colors.red.shade700 : Colors.black,
-                  ),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(email, style: const TextStyle(fontSize: 12)),
-                    if (isBlocked)
-                      const Text(
-                        '🔒 Compte suspendu',
-                        style: TextStyle(color: Colors.red, fontSize: 11, fontWeight: FontWeight.bold),
-                      ),
+            return FadeInUp(
+              delay: Duration(milliseconds: index * 50),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
-                trailing: Switch(
-                  value: !isBlocked,
-                  activeColor: Colors.green,
-                  inactiveThumbColor: Colors.red,
-                  onChanged: (_) async {
-                    final action = isBlocked ? 'réactiver' : 'suspendre';
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text('Confirmer'),
-                        content: Text('Voulez-vous $action le compte de $name ?'),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isBlocked ? Colors.green : Colors.red,
-                            ),
-                            onPressed: () => Navigator.pop(ctx, true),
-                            child: Text(isBlocked ? 'Réactiver' : 'Suspendre',
-                                style: const TextStyle(color: Colors.white)),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isBlocked ? AppTheme.error.withOpacity(0.1) : (role == 'teacher' ? AppTheme.success.withOpacity(0.1) : Colors.blue.withOpacity(0.1)),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      role == 'teacher' ? Icons.school_rounded : Icons.person_rounded,
+                      color: isBlocked ? AppTheme.error : (role == 'teacher' ? AppTheme.success : Colors.blue),
+                    ),
+                  ),
+                  title: Text(
+                    name,
+                    style: TextStyle(fontWeight: FontWeight.bold, color: isBlocked ? AppTheme.error : AppTheme.textPrimary),
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(email, style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                        if (isBlocked) ...[
+                          const SizedBox(height: 4),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(color: AppTheme.error.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                            child: const Text('🔒 Compte suspendu', style: TextStyle(color: AppTheme.error, fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
-                        ],
-                      ),
-                    );
-                    if (confirm == true) {
-                      await _firebaseService.toggleUserBlock(uid, isBlocked);
-                    }
-                  },
+                        ]
+                      ],
+                    ),
+                  ),
+                  trailing: Switch.adaptive(
+                    value: !isBlocked,
+                    activeColor: AppTheme.success,
+                    inactiveThumbColor: AppTheme.error,
+                    onChanged: (_) async {
+                      final action = isBlocked ? 'réactiver' : 'suspendre';
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Confirmer'),
+                          content: Text('Voulez-vous $action le compte de $name ?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(backgroundColor: isBlocked ? AppTheme.success : AppTheme.error),
+                              onPressed: () => Navigator.pop(ctx, true),
+                              child: Text(isBlocked ? 'Réactiver' : 'Suspendre'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        await _firebaseService.toggleUserBlock(uid, isBlocked);
+                      }
+                    },
+                  ),
                 ),
               ),
             );
@@ -136,18 +145,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Gestion des Utilisateurs'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
+        title: const Text('Utilisateurs'),
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.white,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white60,
+          labelColor: AppTheme.primary,
+          unselectedLabelColor: AppTheme.textSecondary,
+          indicatorColor: AppTheme.primary,
           tabs: const [
-            Tab(icon: Icon(Icons.school), text: 'Étudiants'),
-            Tab(icon: Icon(Icons.person_outline), text: 'Enseignants'),
+            Tab(icon: Icon(Icons.school_rounded), text: 'Étudiants'),
+            Tab(icon: Icon(Icons.person_outline_rounded), text: 'Enseignants'),
           ],
         ),
       ),

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/services.dart';
+import 'package:animate_do/animate_do.dart';
 import '../services/firebase_service.dart';
 import '../services/pdf_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/custom_text_field.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -26,7 +30,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   final FirebaseService _firebaseService = FirebaseService();
   bool _isGenerating = false;
   
-  // Stats dynamiques
   int _totalSessionsCreated = 0;
   int _totalAttendanceCount = 0;
 
@@ -57,7 +60,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   Future<void> _fetchStats(String teacherId) async {
     try {
-      // Compter le nombre de séances créées par cet enseignant
       final sessionsQuery = await FirebaseFirestore.instance
           .collection('sessions')
           .where('teacherId', isEqualTo: teacherId)
@@ -92,7 +94,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   Future<void> _generateQR() async {
     if (_courseController.text.isEmpty || _roomController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez remplir la matière et la salle')),
+        SnackBar(
+          content: const Text('Veuillez remplir la matière et la salle'),
+          backgroundColor: AppTheme.warning,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -128,8 +134,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur de création de session: ${e.toString()}'),
-            backgroundColor: Colors.red,
+            content: Text('Erreur: ${e.toString()}'),
+            backgroundColor: AppTheme.error,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -142,7 +149,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     }
   }
 
-  // Fonction d'exportation PDF
   Future<void> _exportSessionToPdf(List<DocumentSnapshot> presentDocs) async {
     if (_generatedCode.isEmpty) return;
 
@@ -167,14 +173,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erreur d\'export PDF : ${e.toString()}'),
-          backgroundColor: Colors.red,
+          content: Text('Erreur PDF : ${e.toString()}'),
+          backgroundColor: AppTheme.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
   }
 
-  // Écran Accueil (Génération QR)
   Widget _buildHomeScreen() {
     return Center(
       child: SingleChildScrollView(
@@ -185,314 +191,300 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.qr_code, size: 80, color: Colors.blue),
-                const SizedBox(height: 20),
-                Text(
-                  'Bonjour, $_teacherName',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                FadeInDown(
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.qr_code_rounded, size: 60, color: AppTheme.primary),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FadeInDown(
+                  delay: const Duration(milliseconds: 100),
+                  child: Text(
+                    'Bonjour, ${_teacherName.split(' ').first}',
+                    style: Theme.of(context).textTheme.displayMedium,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Créez une séance pour générer un QR code',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                FadeInDown(
+                  delay: const Duration(milliseconds: 200),
+                  child: Text(
+                    'Créez une séance pour générer le QR code.',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+                  ),
                 ),
                 const SizedBox(height: 40),
 
-                // Matière
-                TextField(
-                  controller: _courseController,
-                  decoration: InputDecoration(
-                    labelText: 'Matière',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: const Icon(Icons.book, color: Colors.blue),
+                FadeInUp(
+                  delay: const Duration(milliseconds: 300),
+                  child: CustomTextField(
+                    controller: _courseController,
+                    labelText: 'Matière (ex: Algorithmique)',
+                    prefixIcon: Icons.book_outlined,
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // Salle
-                TextField(
-                  controller: _roomController,
-                  decoration: InputDecoration(
-                    labelText: 'Salle',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: const Icon(Icons.location_on, color: Colors.blue),
+                
+                FadeInUp(
+                  delay: const Duration(milliseconds: 400),
+                  child: CustomTextField(
+                    controller: _roomController,
+                    labelText: 'Salle (ex: Amphi 300)',
+                    prefixIcon: Icons.location_on_outlined,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 32),
 
-                // Bouton Générer
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isGenerating ? null : _generateQR,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                FadeInUp(
+                  delay: const Duration(milliseconds: 500),
+                  child: PrimaryButton(
+                    text: 'Générer le QR Code',
+                    isLoading: _isGenerating,
+                    onPressed: _generateQR,
+                    icon: Icons.qr_code_rounded,
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                if (_generatedCode.isNotEmpty)
+                  FadeInUp(
+                    duration: const Duration(milliseconds: 800),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppTheme.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
                       ),
-                    ),
-                    child: _isGenerating
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'GÉNÉRER LE QR CODE',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: AppTheme.border),
+                            ),
+                            child: QrImageView(
+                              data: _generatedCode,
+                              version: QrVersions.auto,
+                              size: 200,
+                              eyeStyle: const QrEyeStyle(
+                                eyeShape: QrEyeShape.square,
+                                color: AppTheme.textPrimary,
+                              ),
+                              dataModuleStyle: const QrDataModuleStyle(
+                                dataModuleShape: QrDataModuleShape.square,
+                                color: AppTheme.textPrimary,
+                              ),
+                            ),
                           ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // QR Code généré & Liste des étudiants présents en temps réel
-                if (_generatedCode.isNotEmpty) ...[
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        QrImageView(
-                          data: _generatedCode,
-                          version: QrVersions.auto,
-                          size: 180,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          _generatedCode,
-                          style: const TextStyle(fontSize: 10, fontFamily: 'monospace', fontWeight: FontWeight.bold),
-                        ),
-                        if (_expirationTime != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
+                          const SizedBox(height: 24),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: AppTheme.background,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: AppTheme.border),
+                            ),
                             child: Text(
-                              'Expire à : ${_expirationTime!.hour}:${_expirationTime!.minute.toString().padLeft(2, '0')}',
-                              style: const TextStyle(color: Colors.red, fontSize: 12, fontWeight: FontWeight.bold),
+                              _generatedCode,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.5,
+                              ),
                             ),
                           ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: _generatedCode));
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Code de session copié !')),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
+                          if (_expirationTime != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Text(
+                                'Expire à : ${_expirationTime!.hour}:${_expirationTime!.minute.toString().padLeft(2, '0')}',
+                                style: const TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Clipboard.setData(ClipboardData(text: _generatedCode));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Code copié !'), backgroundColor: AppTheme.success, behavior: SnackBarBehavior.floating),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.copy_rounded, size: 18),
+                                  label: const Text('Copier'),
+                                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.success),
                                 ),
-                                child: const Text('COPIER'),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _generatedCode = '';
-                                    _expirationTime = null;
-                                    _courseController.clear();
-                                    _roomController.clear();
-                                  });
-                                },
-                                child: const Text('NOUVEAU'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 12),
-
-                  // Bouton CLÔTURER la séance
-                  SizedBox(
-                    width: double.infinity,
-                    height: 45,
-                    child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Clôturer la séance ?'),
-                            content: const Text('Les étudiants ne pourront plus émarger. Cette action est irréversible.'),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                                onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Clôturer', style: TextStyle(color: Colors.white)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _generatedCode = '';
+                                      _expirationTime = null;
+                                      _courseController.clear();
+                                      _roomController.clear();
+                                    });
+                                  },
+                                  child: const Text('Nouveau'),
+                                ),
                               ),
                             ],
                           ),
-                        );
-                        if (confirm == true) {
-                          await _firebaseService.closeSession(_generatedCode);
-                          if (mounted) {
-                            setState(() {
-                              _generatedCode = '';
-                              _expirationTime = null;
-                              _courseController.clear();
-                              _roomController.clear();
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('✅ Séance clôturée avec succès.'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      icon: const Icon(Icons.stop_circle, color: Colors.red),
-                      label: const Text('CLÔTURER LA SÉANCE', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.red),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Clôturer la séance ?'),
+                                    content: const Text('Les étudiants ne pourront plus émarger. Action irréversible.'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
+                                      ElevatedButton(
+                                        style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
+                                        onPressed: () => Navigator.pop(ctx, true),
+                                        child: const Text('Clôturer', style: TextStyle(color: Colors.white)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  await _firebaseService.closeSession(_generatedCode);
+                                  if (mounted) {
+                                    setState(() {
+                                      _generatedCode = '';
+                                      _expirationTime = null;
+                                      _courseController.clear();
+                                      _roomController.clear();
+                                    });
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Séance clôturée.'), backgroundColor: AppTheme.success, behavior: SnackBarBehavior.floating),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.stop_circle_rounded, color: AppTheme.error),
+                              label: const Text('CLÔTURER LA SÉANCE', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.error)),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Section d'écoute temps réel
+                const SizedBox(height: 24),
+                if (_generatedCode.isNotEmpty)
                   StreamBuilder<QuerySnapshot>(
                     stream: _firebaseService.getPresentStudentsStream(_generatedCode),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      
                       final presentDocs = snapshot.data?.docs ?? [];
-                      
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.05),
-                              blurRadius: 5,
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Présents en temps réel',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(12),
+                      return FadeInUp(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppTheme.surface,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: AppTheme.border),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Présents',
+                                    style: Theme.of(context).textTheme.displaySmall,
                                   ),
-                                  child: Text(
-                                    '${presentDocs.length}',
-                                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: AppTheme.primary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      '${presentDocs.length}',
+                                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primary),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              if (presentDocs.isEmpty)
+                                const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 24),
+                                    child: Text(
+                                      'En attente d\'émargement...',
+                                      style: TextStyle(color: AppTheme.textSecondary, fontStyle: FontStyle.italic),
+                                    ),
+                                  ),
+                                )
+                              else ...[
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: presentDocs.length,
+                                  separatorBuilder: (context, index) => const Divider(height: 1),
+                                  itemBuilder: (context, index) {
+                                    final data = presentDocs[index].data() as Map<String, dynamic>;
+                                    final name = data['studentName'] ?? 'Étudiant';
+                                    final time = (data['scannedAt'] as Timestamp?)?.toDate();
+                                    final timeStr = time != null ? '${time.hour}h${time.minute.toString().padLeft(2, '0')}' : '';
+                                    return ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                                      leading: const CircleAvatar(
+                                        backgroundColor: AppTheme.success,
+                                        radius: 16,
+                                        child: Icon(Icons.check, color: Colors.white, size: 16),
+                                      ),
+                                      title: Text(name, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                      trailing: Text(timeStr, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13)),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => _exportSessionToPdf(presentDocs),
+                                    icon: const Icon(Icons.picture_as_pdf_rounded),
+                                    label: const Text('EXPORTER EN PDF'),
+                                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
                                   ),
                                 ),
                               ],
-                            ),
-                            const Divider(height: 20),
-                            if (presentDocs.isEmpty)
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                child: Center(
-                                  child: Text(
-                                    'En attente d\'émargement...',
-                                    style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-                                  ),
-                                ),
-                              )
-                            else ...[
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: presentDocs.length,
-                                separatorBuilder: (context, index) => const Divider(),
-                                itemBuilder: (context, index) {
-                                  final data = presentDocs[index].data() as Map<String, dynamic>;
-                                  final name = data['studentName'] ?? 'Étudiant';
-                                  final email = data['studentEmail'] ?? '';
-                                  final time = (data['scannedAt'] as Timestamp?)?.toDate();
-                                  final timeStr = time != null
-                                      ? '${time.hour}:${time.minute.toString().padLeft(2, '0')}'
-                                      : '';
-                                      
-                                  return ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: const CircleAvatar(
-                                      backgroundColor: Colors.green,
-                                      child: Icon(Icons.check, color: Colors.white),
-                                    ),
-                                    title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                    subtitle: Text(email, style: const TextStyle(fontSize: 12)),
-                                    trailing: Text(timeStr, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 20),
-                              
-                              // Bouton Exporter en PDF
-                              SizedBox(
-                                width: double.infinity,
-                                height: 45,
-                                child: ElevatedButton.icon(
-                                  onPressed: () => _exportSessionToPdf(presentDocs),
-                                  icon: const Icon(Icons.picture_as_pdf),
-                                  label: const Text('EXPORTER LA LISTE EN PDF', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red.shade600,
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
                             ],
-                          ],
+                          ),
                         ),
                       );
                     },
                   ),
-                ],
               ],
             ),
           ),
@@ -501,7 +493,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  // Écran Absents (étudiants non présents pour la séance actuelle)
   Widget _buildAbsentsScreen() {
     if (_generatedCode.isEmpty) {
       return const Center(
@@ -510,16 +501,18 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.people_outline, size: 80, color: Colors.grey),
+              Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary),
               SizedBox(height: 16),
-              Text('Créez d\'abord une séance active pour voir les absents.',
-                  textAlign: TextAlign.center, style: TextStyle(color: Colors.grey)),
+              Text(
+                'Créez d\'abord une séance active\npour voir les absents.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
+              ),
             ],
           ),
         ),
       );
     }
-
     return StreamBuilder<QuerySnapshot>(
       stream: _firebaseService.getPresentStudentsStream(_generatedCode),
       builder: (context, presentSnapshot) {
@@ -543,43 +536,69 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.celebration, size: 80, color: Colors.green),
+                    Icon(Icons.celebration_rounded, size: 64, color: AppTheme.success),
                     SizedBox(height: 16),
-                    Text('Tout le monde est présent ! 🎉', style: TextStyle(fontSize: 18, color: Colors.green, fontWeight: FontWeight.bold)),
+                    Text('Tout le monde est présent ! 🎉', style: TextStyle(fontSize: 18, color: AppTheme.success, fontWeight: FontWeight.bold)),
                   ],
                 ),
               );
             }
 
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('${absentStudents.length} absent(s)', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.red)),
-                      Text('${presentSnapshot.data!.docs.length} présent(s)', style: const TextStyle(fontSize: 14, color: Colors.green)),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: absentStudents.length,
-                    itemBuilder: (context, i) {
-                      final data = absentStudents[i].data() as Map<String, dynamic>;
-                      return ListTile(
-                        leading: const CircleAvatar(
-                          backgroundColor: Colors.red,
-                          child: Icon(Icons.close, color: Colors.white, size: 18),
+            return Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Column(
+                          children: [
+                            const Text('Absents', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text('${absentStudents.length}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.error)),
+                          ],
                         ),
-                        title: Text(data['name'] ?? 'Inconnu', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(data['email'] ?? '', style: const TextStyle(fontSize: 12)),
-                      );
-                    },
+                        Container(width: 1, height: 40, color: AppTheme.border),
+                        Column(
+                          children: [
+                            const Text('Présents', style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text('${presentSnapshot.data!.docs.length}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.success)),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: absentStudents.length,
+                      itemBuilder: (context, i) {
+                        final data = absentStudents[i].data() as Map<String, dynamic>;
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: ListTile(
+                            leading: const CircleAvatar(
+                              backgroundColor: AppTheme.error,
+                              radius: 16,
+                              child: Icon(Icons.close_rounded, color: Colors.white, size: 16),
+                            ),
+                            title: Text(data['name'] ?? 'Inconnu', style: const TextStyle(fontWeight: FontWeight.w600)),
+                            subtitle: Text(data['email'] ?? '', style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary)),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -587,7 +606,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  // Écran Historique (Séances passées)
   Widget _buildHistoryScreen() {
     final user = _firebaseService.currentUser;
     if (user == null) return const Center(child: Text('Non connecté.'));
@@ -596,90 +614,63 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       stream: FirebaseFirestore.instance
           .collection('sessions')
           .where('teacherId', isEqualTo: user.uid)
+          .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        
+        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
         final sessionDocs = snapshot.data?.docs ?? [];
-        
         if (sessionDocs.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.history, size: 80, color: Colors.grey),
+                const Icon(Icons.history_rounded, size: 64, color: AppTheme.textSecondary),
                 const SizedBox(height: 16),
-                const Text(
-                  'Aucune séance enregistrée',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-                const SizedBox(height: 8),
+                const Text('Aucune séance enregistrée', style: TextStyle(color: AppTheme.textSecondary)),
+                const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _currentIndex = 0;
-                    });
-                  },
-                  child: const Text('Créer une séance'),
+                  onPressed: () => setState(() => _currentIndex = 0),
+                  child: const Text('Créer une séance', style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
           );
         }
-        
         return ListView.builder(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           itemCount: sessionDocs.length,
           itemBuilder: (context, index) {
-            final session = sessionDocs[index];
-            final data = session.data() as Map<String, dynamic>;
+            final data = sessionDocs[index].data() as Map<String, dynamic>;
             final course = data['course'] ?? '';
             final room = data['room'] ?? '';
             final sessionId = data['sessionId'] ?? '';
             final date = (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now();
-            final dateStr = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} - ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+            final dateStr = '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} à ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
             
             return FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('attendance')
-                  .where('sessionId', isEqualTo: sessionId)
-                  .get(),
+              future: FirebaseFirestore.instance.collection('attendance').where('sessionId', isEqualTo: sessionId).get(),
               builder: (context, attendanceSnapshot) {
                 final count = attendanceSnapshot.data?.docs.length ?? 0;
-                
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.blueAccent,
-                      child: Icon(Icons.school, color: Colors.white),
+                    contentPadding: const EdgeInsets.all(16),
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                      child: const Icon(Icons.class_rounded, color: AppTheme.primary),
                     ),
                     title: Text(course, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text('Salle: $room | Code: $sessionId'),
-                        Text(dateStr, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                      ],
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: Text('Salle $room\n$dateStr', style: const TextStyle(height: 1.4)),
                     ),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '$count présent(s)',
-                        style: TextStyle(color: Colors.green.shade700, fontWeight: FontWeight.bold, fontSize: 12),
-                      ),
+                      decoration: BoxDecoration(color: AppTheme.success.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                      child: Text('$count présents', style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold, fontSize: 12)),
                     ),
                     onTap: () async {
-                      // Permettre de ré-exporter la liste à partir de l'historique
                       if (attendanceSnapshot.hasData) {
                         List<Map<String, dynamic>> studentsList = [];
                         for (var doc in attendanceSnapshot.data!.docs) {
@@ -691,11 +682,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           });
                         }
                         await PdfService.generateAndShareAttendancePdf(
-                          courseName: course,
-                          roomName: room,
-                          teacherName: _teacherName,
-                          sessionId: sessionId,
-                          students: studentsList,
+                          courseName: course, roomName: room, teacherName: _teacherName, sessionId: sessionId, students: studentsList,
                         );
                       }
                     },
@@ -709,88 +696,59 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     );
   }
 
-  // Écran Profil
   Widget _buildProfileScreen() {
     return Center(
       child: SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 450),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.blue.shade100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.person, size: 60, color: Colors.blue),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppTheme.primary, width: 2)),
+                child: const CircleAvatar(radius: 50, backgroundColor: AppTheme.primary, child: Icon(Icons.person_rounded, size: 50, color: Colors.white)),
+              ),
+              const SizedBox(height: 24),
+              Text(_teacherName, style: Theme.of(context).textTheme.displayMedium),
+              const SizedBox(height: 8),
+              Text(_teacherEmail, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 16)),
+              const SizedBox(height: 40),
+              Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.border),
                 ),
-                const SizedBox(height: 20),
-                Text(
-                  _teacherName,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(_teacherEmail, style: const TextStyle(color: Colors.grey)),
-                const SizedBox(height: 40),
-                
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade200),
-                  ),
-                  child: Column(
-                    children: [
-                      _profileStatRow('Séances créées', '$_totalSessionsCreated'),
-                      const Divider(),
-                      _profileStatRow('Total émargements', '$_totalAttendanceCount'),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 40),
-                
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _showLogoutDialog();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.class_rounded, color: AppTheme.textSecondary),
+                      title: const Text('Séances créées'),
+                      trailing: Text('$_totalSessionsCreated', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
-                    child: const Text('SE DÉCONNECTER'),
-                  ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.people_rounded, color: AppTheme.textSecondary),
+                      title: const Text('Total émargements'),
+                      trailing: Text('$_totalAttendanceCount', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 40),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _showLogoutDialog(),
+                  icon: const Icon(Icons.logout_rounded, color: AppTheme.error),
+                  label: const Text('SE DÉCONNECTER', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(side: const BorderSide(color: AppTheme.error)),
+                ),
+              ),
+            ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _profileStatRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(fontSize: 16)),
-          const Spacer(),
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        ],
       ),
     );
   }
@@ -800,21 +758,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Déconnexion'),
-        content: const Text('Voulez-vous vraiment vous déconnecter de votre compte Enseignant ?'),
+        content: const Text('Voulez-vous vraiment vous déconnecter ?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('ANNULER'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Annuler')),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               await _firebaseService.signOut();
-              if (mounted) {
-                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-              }
+              if (mounted) Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
             },
-            child: const Text('DÉCONNECTER', style: TextStyle(color: Colors.red)),
+            child: const Text('Déconnecter', style: TextStyle(color: AppTheme.error)),
           ),
         ],
       ),
@@ -824,11 +777,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Digital List - Enseignant'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        title: const Text('Espace Enseignant'),
+        actions: [
+          IconButton(icon: const Icon(Icons.notifications_none_rounded), onPressed: () {}),
+          const SizedBox(width: 8),
+        ],
       ),
       body: IndexedStack(
         index: _currentIndex,
@@ -840,21 +795,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() { _currentIndex = index; });
-          final user = _firebaseService.currentUser;
-          if (user != null) _fetchStats(user.uid);
-        },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.qr_code), label: 'Session'),
-          BottomNavigationBarItem(icon: Icon(Icons.people_outline), label: 'Absents'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Historique'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Accueil'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline_rounded), label: 'Absents'),
+          BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'Historique'),
+          BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profil'),
         ],
+        onTap: (index) => setState(() => _currentIndex = index),
       ),
     );
   }
