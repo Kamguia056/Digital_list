@@ -48,10 +48,13 @@ dependencies:
   google_fonts: ^8.1.0
   animate_do: ^5.1.0
 
+  image_picker: ^1.0.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  image_picker: ^1.0.5
+  mockito: ^5.4.4
+  build_runner: ^2.4.9
   
 
   # The "flutter_lints" package below contains a set of recommended lints to
