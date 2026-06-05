@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import '../theme/app_theme.dart';
+import '../widgets/primary_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -6,97 +9,93 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: AppTheme.background,
       body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.book, size: 80, color: Colors.white),
-                const SizedBox(height: 20),
-                const Text(
-                  'DIGITAL LIST',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const Text(
-                  'Liste de présence simple',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
-                const SizedBox(height: 60),
-                
-                // Bouton SE CONNECTER
-                Container(
-                  width: 200,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.blue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: const Text(
-                      'SE CONNECTER',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                
-                // Deux boutons
-                Row(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              FadeInDown(
+                duration: const Duration(milliseconds: 800),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                           Navigator.pushNamed(context, '/student_register');
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Column(
-                          children: [
-                            Icon(Icons.school),
-                            Text('S\'inscrire\nÉTUDIANT', textAlign: TextAlign.center),
-                          ],
-                        ),
+                    const SizedBox(height: 60),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.primary.withOpacity(0.1),
+                            blurRadius: 24,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
+                      child: const Icon(Icons.qr_code_scanner_rounded, size: 64, color: AppTheme.primary),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/teacher_request');
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.white),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                    const SizedBox(height: 40),
+                    Text(
+                      'Digital List',
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                            color: AppTheme.textPrimary,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Gérez vos présences intelligemment avec une expérience fluide et professionnelle.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppTheme.textSecondary,
+                            height: 1.5,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              FadeInUp(
+                duration: const Duration(milliseconds: 800),
+                delay: const Duration(milliseconds: 200),
+                child: Column(
+                  children: [
+                    PrimaryButton(
+                      text: 'Se connecter',
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/login');
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                               Navigator.pushNamed(context, '/student_register');
+                            },
+                            child: const Text('Créer un compte'),
+                          ),
                         ),
-                        child: const Column(
-                          children: [
-                            Icon(Icons.person),
-                            Text('Devenir\nENSEIGNANT', textAlign: TextAlign.center),
-                          ],
-                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    TextButton(
+                      onPressed: () {
+                         Navigator.pushNamed(context, '/teacher_request');
+                      },
+                      child: Text(
+                        'Devenir Enseignant',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppTheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

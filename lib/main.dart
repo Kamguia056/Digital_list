@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/student_register_screen.dart'; 
+import 'screens/student_register_screen.dart';
 import 'screens/teacher_request_screen.dart';
 import 'screens/teacher_register_screen.dart';
 import 'screens/student_home_screen.dart';
@@ -46,16 +47,13 @@ class MyApp extends StatelessWidget {
         '/admin_home': (context) => const AdminHomeScreen(),
         '/admin_users': (context) => const AdminUsersScreen(),
         '/admin_session_detail': (context) => const AdminSessionDetailScreen(
-          sessionId: '',
-          courseName: '',
-          room: '',
-          teacherName: '',
-        ),
+              sessionId: '',
+              courseName: '',
+              room: '',
+              teacherName: '',
+            ),
       },
-      theme: ThemeData(
-        primaryColor: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
     );
   }
 }

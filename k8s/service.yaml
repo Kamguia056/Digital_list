@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: digitallist-service
+  namespace: digitallist
+  labels:
+    app: digitallist
+spec:
+  selector:
+    app: digitallist
+    tier: backend
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digitallist-metrics
+  namespace: digitallist
+  labels:
+    app: digitallist
+    component: metrics
+spec:
+  selector:
+    app: digitallist
+  ports:
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: 8080
+  type: ClusterIP

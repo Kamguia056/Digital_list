@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
+import '../theme/app_theme.dart';
+import '../widgets/primary_button.dart';
 
 class ValidationSuccessScreen extends StatelessWidget {
   const ValidationSuccessScreen({super.key, this.code});
@@ -7,7 +10,6 @@ class ValidationSuccessScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Récupérer les arguments transmis lors de la navigation
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
     
     final String sessionCode = args['code'] ?? code ?? 'Code Inconnu';
@@ -20,80 +22,95 @@ class ValidationSuccessScreen extends StatelessWidget {
     final timeStr = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.background,
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 450),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Cercle vert avec icône check
-                  Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_circle,
-                      size: 60,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  const Text(
-                    'PRÉSENCE VALIDÉE !',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Votre émargement a été enregistré avec succès dans la base de données.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  // Carte des détails
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Column(
-                      children: [
-                        _infoRow(Icons.book, 'Matière', courseName),
-                        const Divider(),
-                        _infoRow(Icons.person, 'Enseignant', teacherName),
-                        const Divider(),
-                        _infoRow(Icons.location_on, 'Salle', roomName),
-                        const Divider(),
-                        _infoRow(Icons.calendar_today, 'Date', dateStr),
-                        const Divider(),
-                        _infoRow(Icons.access_time, 'Heure d\'émargement', timeStr),
-                        const Divider(),
-                        _infoRow(Icons.qr_code, 'ID Séance', sessionCode),
-                      ],
+                  ZoomIn(
+                    duration: const Duration(milliseconds: 600),
+                    child: Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        color: AppTheme.success.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppTheme.success.withOpacity(0.3), width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppTheme.success.withOpacity(0.2),
+                            blurRadius: 30,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.check_rounded, size: 64, color: AppTheme.success),
                     ),
                   ),
                   const SizedBox(height: 32),
                   
-                  // Bouton retour
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 300),
+                    child: Text(
+                      'Présence Validée',
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                        color: AppTheme.success,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 400),
+                    child: Text(
+                      'Votre émargement a été enregistré avec succès.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 500),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: AppTheme.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.02),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          _infoRow(Icons.book_outlined, 'Matière', courseName),
+                          const Divider(height: 1),
+                          _infoRow(Icons.person_outline_rounded, 'Enseignant', teacherName),
+                          const Divider(height: 1),
+                          _infoRow(Icons.location_on_outlined, 'Salle', roomName),
+                          const Divider(height: 1),
+                          _infoRow(Icons.calendar_today_outlined, 'Date', dateStr),
+                          const Divider(height: 1),
+                          _infoRow(Icons.access_time_rounded, 'Heure', timeStr),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 700),
+                    child: PrimaryButton(
+                      text: 'Retour à l\'accueil',
                       onPressed: () {
                         Navigator.pushNamedAndRemoveUntil(
                           context,
@@ -101,17 +118,6 @@ class ValidationSuccessScreen extends StatelessWidget {
                           (route) => false,
                         );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'RETOUR À L\'ACCUEIL',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
                     ),
                   ),
                 ],
@@ -125,20 +131,14 @@ class ValidationSuccessScreen extends StatelessWidget {
 
   Widget _infoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.blue),
-          const SizedBox(width: 12),
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
+          Icon(icon, size: 20, color: AppTheme.textSecondary),
+          const SizedBox(width: 16),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500, color: AppTheme.textSecondary)),
           const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-          ),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
         ],
       ),
     );

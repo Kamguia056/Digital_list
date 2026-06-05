@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:animate_do/animate_do.dart';
 import '../services/firebase_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/primary_button.dart';
+import '../widgets/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -49,13 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
       final String role = userData['role'] ?? 'student';
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Connexion réussie !'),
-            backgroundColor: Colors.green,
-          ),
-        );
-
         if (role == 'admin') {
           Navigator.pushNamedAndRemoveUntil(context, '/admin_home', (route) => false);
         } else if (role == 'teacher') {
@@ -68,44 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (e is FirebaseAuthException && e.code == 'device-change-requested') {
         if (mounted) {
           setState(() { _isLoading = false; });
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (ctx) => AlertDialog(
-              title: const Text('Changement d\'appareil'),
-              content: const Text(
-                'Vous essayez de vous connecter sur un nouvel appareil.\n\nAttention : Si vous continuez, votre compte sera VERROUILLÉ sur ce nouveau téléphone pendant 30 jours, et l\'ancien ne fonctionnera plus.\n\nVoulez-vous vraiment lier ce téléphone à votre compte ?',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                  onPressed: () async {
-                    Navigator.pop(ctx);
-                    setState(() { _isLoading = true; });
-                    try {
-                      await _firebaseService.bindNewDevice(
-                        _emailController.text.trim(),
-                        _passwordController.text.trim(),
-                      );
-                      _login(); // Relancer la connexion
-                    } catch (err) {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Erreur : $err'), backgroundColor: Colors.red),
-                        );
-                        setState(() { _isLoading = false; });
-                      }
-                    }
-                  },
-                  child: const Text('Oui, lier ce téléphone', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
+          _showDeviceChangeDialog();
         }
         return;
       }
@@ -114,7 +74,9 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erreur : ${e.toString()}'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppTheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
         );
       }
@@ -127,173 +89,168 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _showDeviceChangeDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Changement d\'appareil'),
+        content: const Text(
+          'Vous essayez de vous connecter sur un nouvel appareil.\n\nAttention : Si vous continuez, votre compte sera VERROUILLÉ sur ce nouveau téléphone pendant 30 jours, et l\'ancien ne fonctionnera plus.\n\nVoulez-vous vraiment lier ce téléphone à votre compte ?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Annuler', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppTheme.error),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              setState(() { _isLoading = true; });
+              try {
+                await _firebaseService.bindNewDevice(
+                  _emailController.text.trim(),
+                  _passwordController.text.trim(),
+                );
+                _login(); // Relancer la connexion
+              } catch (err) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erreur : $err'), backgroundColor: AppTheme.error),
+                  );
+                  setState(() { _isLoading = false; });
+                }
+              }
+            },
+            child: const Text('Oui, lier ce téléphone', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Connexion'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        automaticallyImplyLeading: false, // Pas de retour vers l'accueil depuis la connexion
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new),
+          onPressed: () => Navigator.pop(context),
+        ),
+        backgroundColor: AppTheme.background,
+        elevation: 0,
       ),
       body: Center(
         child: SingleChildScrollView(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 450),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.lock, size: 80, color: Colors.white),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Connexion',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: FadeInUp(
+                duration: const Duration(milliseconds: 600),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Icon(Icons.lock_person_rounded, size: 64, color: AppTheme.primary),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Bon retour',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
-                    ),
-                    const SizedBox(height: 40),
-                    
-                    // Email
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
+                      const SizedBox(height: 8),
+                      Text(
+                        'Connectez-vous à votre compte',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: AppTheme.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      
+                      CustomTextField(
+                        controller: _emailController,
                         labelText: 'Email',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon: const Icon(Icons.email, color: Colors.blue),
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Veuillez saisir votre adresse email.';
+                          }
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
+                            return 'Veuillez saisir un email valide.';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Veuillez saisir votre adresse email.';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value.trim())) {
-                          return 'Veuillez saisir un email valide.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    
-                    // Mot de passe
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
+                      const SizedBox(height: 16),
+                      
+                      CustomTextField(
+                        controller: _passwordController,
                         labelText: 'Mot de passe',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        prefixIcon: const Icon(Icons.lock, color: Colors.blue),
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Veuillez saisir votre mot de passe.';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuillez saisir votre mot de passe.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    
-                    // Bouton SE CONNECTER / Loading
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _login,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () {
+                             // Reset password logic
+                          },
+                          child: Text(
+                            'Mot de passe oublié ?',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppTheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(color: Colors.blue)
-                            : const Text(
-                                'SE CONNECTER',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    
-                    // Créer un compte étudiant
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/student_register');
-                      },
-                      child: const Text(
-                        'Créer un compte Étudiant',
-                        style: TextStyle(color: Colors.white70),
+                      const SizedBox(height: 24),
+                      
+                      PrimaryButton(
+                        text: 'Se connecter',
+                        isLoading: _isLoading,
+                        onPressed: _login,
                       ),
-                    ),
-                    
-                    // Mot de passe oublié (Optionnel)
-                    TextButton(
-                      onPressed: () async {
-                        final emailController = TextEditingController();
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Réinitialiser le mot de passe'),
-                            content: TextField(
-                              controller: emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              decoration: const InputDecoration(
-                                labelText: 'Votre adresse email',
-                                prefixIcon: Icon(Icons.email),
+                      const SizedBox(height: 24),
+                      
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Pas encore de compte ? ",
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(context, '/student_register');
+                            },
+                            child: Text(
+                              "S'inscrire",
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: AppTheme.primary,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Annuler')),
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Envoyer'),
-                              ),
-                            ],
                           ),
-                        );
-                        if (confirm == true && emailController.text.isNotEmpty) {
-                          try {
-                            await _firebaseService.resetPassword(emailController.text);
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('✅ Email de réinitialisation envoyé ! Vérifiez votre boîte mail.'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Erreur : ${e.toString()}'), backgroundColor: Colors.red),
-                              );
-                            }
-                          }
-                        }
-                      },
-                      child: const Text(
-                        'Mot de passe oublié ?',
-                        style: TextStyle(color: Colors.white54),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 40),
+                    ],
+                  ),
                 ),
               ),
             ),

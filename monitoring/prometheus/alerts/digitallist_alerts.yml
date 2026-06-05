@@ -1,0 +1,60 @@
+groups:
+  - name: digitallist_alerts
+    rules:
+
+      # ── Application Alerts ───────────────────────────────────
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          app: digitallist
+        annotations:
+          summary: "Taux d'erreur HTTP elevé"
+          description: "Plus de 5% des requêtes retournent une erreur 5xx depuis 2 minutes."
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          app: digitallist
+        annotations:
+          summary: "Temps de réponse élevé (P95)"
+          description: "Le 95ème percentile du temps de réponse dépasse 2 secondes."
+
+      # ── Infrastructure Alerts ────────────────────────────────
+      - alert: HighCPU
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU élevé sur {{ $labels.instance }}"
+          description: "Utilisation CPU dépasse 80% depuis 5 minutes."
+
+      - alert: HighMemory
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mémoire élevée sur {{ $labels.instance }}"
+          description: "Utilisation mémoire dépasse 85%."
+
+      # ── Pod Alerts ───────────────────────────────────────────
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 15 > 5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod en crash loop : {{ $labels.pod }}"
+
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="true"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod non prêt : {{ $labels.pod }}"

@@ -1,0 +1,58 @@
+---
+- name: Deploy Digital List to Kubernetes
+  hosts: kubernetes_masters
+  become_user: ubuntu
+
+  vars:
+    app_name: digitallist
+    namespace: digitallist
+    docker_image: "{{ docker_registry }}/{{ app_name }}"
+    image_tag: "{{ build_number | default('latest') }}"
+
+  tasks:
+    - name: Create namespace
+      command: kubectl create namespace {{ namespace }}
+      ignore_errors: yes
+
+    - name: Apply ConfigMap
+      command: kubectl apply -f /tmp/k8s/configmap.yaml -n {{ namespace }}
+
+    - name: Apply Secrets (from vault)
+      command: kubectl apply -f /tmp/k8s/secret.yaml -n {{ namespace }}
+
+    - name: Deploy application
+      command: >
+        kubectl set image deployment/{{ app_name }}-api
+        {{ app_name }}-api={{ docker_image }}:{{ image_tag }}
+        -n {{ namespace }}
+
+    - name: Apply HPA
+      command: kubectl apply -f /tmp/k8s/hpa.yaml -n {{ namespace }}
+
+    - name: Apply Ingress
+      command: kubectl apply -f /tmp/k8s/ingress.yaml -n {{ namespace }}
+
+    - name: Wait for rollout
+      command: >
+        kubectl rollout status deployment/{{ app_name }}-api
+        -n {{ namespace }} --timeout=5m
+
+    - name: Verify deployment
+      command: kubectl get pods -n {{ namespace }}
+      register: pods_status
+
+    - name: Show pod status
+      debug:
+        msg: "{{ pods_status.stdout_lines }}"
+
+- name: Deploy Monitoring Stack
+  hosts: monitoring
+  become: true
+  tasks:
+    - name: Copy monitoring configs
+      copy:
+        src: monitoring/
+        dest: /opt/digitallist/monitoring/
+
+    - name: Start Prometheus and Grafana
+      command: docker compose -f /opt/digitallist/monitoring/docker-compose.monitoring.yml up -d

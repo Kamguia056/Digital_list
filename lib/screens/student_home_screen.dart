@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:animate_do/animate_do.dart';
 import '../services/firebase_service.dart';
+import '../theme/app_theme.dart';
 
 class StudentHomeScreen extends StatefulWidget {
   const StudentHomeScreen({super.key});
@@ -58,7 +60,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
               }
             },
-            child: const Text('DÉCONNECTER', style: TextStyle(color: Colors.red)),
+            child: const Text('DÉCONNECTER', style: TextStyle(color: AppTheme.error)),
           ),
         ],
       ),
@@ -66,8 +68,6 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
   }
 
   Widget _buildHomeContent(List<DocumentSnapshot> attendanceDocs) {
-    // Calculer les statistiques réelles
-    // Par exemple, supposons que le semestre compte théoriquement 20 cours au total.
     const int totalExpectedClasses = 15;
     int attendedClasses = attendanceDocs.length;
     double attendancePercentage = totalExpectedClasses > 0 
@@ -76,244 +76,259 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
     int percentageInt = (attendancePercentage * 100).toInt();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Message de bienvenue
-          Text(
-            'Bonjour, $_studentName',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+          FadeInDown(
+            child: Text(
+              'Bonjour, ${_studentName.split(' ').first} 👋',
+              style: Theme.of(context).textTheme.displayMedium,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Prêt à valider votre présence ?',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          
-          // Carte statistiques d'émargement réelles
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Colors.blue, Colors.blueAccent],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          FadeInDown(
+            delay: const Duration(milliseconds: 100),
+            child: Text(
+              'Prêt à valider votre présence aujourd\'hui ?',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppTheme.textSecondary,
               ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blue.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'MON HISTORIQUE D\'ÉMARGEMENT',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$attendedClasses / $totalExpectedClasses présences',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: attendancePercentage,
-                  backgroundColor: Colors.white30,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '$percentageInt% de présence ce semestre',
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           
-          // Carte SCANNER
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const Icon(Icons.qr_code_scanner, size: 64, color: Colors.blue),
-                const SizedBox(height: 12),
-                const Text(
-                  'Scanner un code QR',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Validez votre présence en cours en scannant',
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: 200,
-                  height: 45,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/scanner');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                    ),
-                    child: const Text('SCANNER MAINTENANT →', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-          
-          // Dernières séances émargées réelles
-          const Text(
-            '📋 DERNIÈRES SÉANCES ÉMARGÉES',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          if (attendanceDocs.isEmpty)
-            Container(
-              width: double.infinity,
+          FadeInUp(
+            delay: const Duration(milliseconds: 200),
+            child: Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                gradient: const LinearGradient(
+                  colors: [AppTheme.primary, AppTheme.secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.primary.withOpacity(0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              child: const Center(
-                child: Text(
-                  'Aucun émargement enregistré pour le moment.',
-                  style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'TAUX DE PRÉSENCE',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.trending_up, color: Colors.white, size: 20),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '$percentageInt%',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 48,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        '$attendedClasses / $totalExpectedClasses cours',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: LinearProgressIndicator(
+                      value: attendancePercentage,
+                      minHeight: 8,
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          FadeInUp(
+            delay: const Duration(milliseconds: 300),
+            child: InkWell(
+              onTap: () {
+                Navigator.pushNamed(context, '/scanner');
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: AppTheme.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.textPrimary.withOpacity(0.02),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.qr_code_scanner_rounded, size: 40, color: AppTheme.primary),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Scanner un QR Code',
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 18),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Validez votre présence instantanément',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          
+          FadeInUp(
+            delay: const Duration(milliseconds: 400),
+            child: const Text(
+              'Dernières présences',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          
+          if (attendanceDocs.isEmpty)
+            FadeInUp(
+              delay: const Duration(milliseconds: 500),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.history_rounded, size: 48, color: AppTheme.textSecondary.withOpacity(0.5)),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Aucune présence enregistrée.',
+                      style: TextStyle(color: AppTheme.textSecondary),
+                    ),
+                  ],
                 ),
               ),
             )
           else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: attendanceDocs.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final data = attendanceDocs[index].data() as Map<String, dynamic>;
-                final course = data['course'] ?? 'Matière inconnue';
-                final room = data['room'] ?? 'Salle';
-                final teacher = data['teacherName'] ?? 'Enseignant';
-                
-                final scannedAt = data['scannedAt'] as Timestamp?;
-                String timeStr = 'Date inconnue';
-                if (scannedAt != null) {
-                  final time = scannedAt.toDate();
-                  timeStr = '${time.day.toString().padLeft(2, '0')}/${time.month.toString().padLeft(2, '0')} à ${time.hour}h${time.minute.toString().padLeft(2, '0')}';
-                }
-                
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.05),
-                        blurRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.check_circle, color: Colors.green),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              course,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              'Salle $room | Enseigné par $teacher',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Présent',
-                              style: TextStyle(color: Colors.green, fontSize: 11, fontWeight: FontWeight.bold),
-                            ),
+            FadeInUp(
+              delay: const Duration(milliseconds: 500),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: attendanceDocs.length > 3 ? 3 : attendanceDocs.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final data = attendanceDocs[index].data() as Map<String, dynamic>;
+                  final course = data['course'] ?? 'Inconnu';
+                  final teacher = data['teacherName'] ?? '';
+                  final scannedAt = data['scannedAt'] as Timestamp?;
+                  String timeStr = '';
+                  if (scannedAt != null) {
+                    final time = scannedAt.toDate();
+                    timeStr = '${time.day.toString().padLeft(2, '0')}/${time.month.toString().padLeft(2, '0')} - ${time.hour}h${time.minute.toString().padLeft(2, '0')}';
+                  }
+                  
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppTheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTheme.border),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppTheme.success.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            timeStr,
-                            style: const TextStyle(fontSize: 10, color: Colors.grey),
+                          child: const Icon(Icons.check_circle_rounded, color: AppTheme.success),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                course,
+                                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: AppTheme.textPrimary),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                teacher,
+                                style: const TextStyle(fontSize: 13, color: AppTheme.textSecondary),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        ),
+                        Text(
+                          timeStr,
+                          style: const TextStyle(fontSize: 12, color: AppTheme.textSecondary, fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
         ],
       ),
@@ -333,17 +348,16 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
         final attendanceDocs = snapshot.data?.docs ?? [];
         
         return Scaffold(
-          backgroundColor: Colors.grey[100],
+          backgroundColor: AppTheme.background,
           appBar: AppBar(
-            title: const Text('Digital List - Étudiant'),
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
+            title: const Text('Mon Espace'),
             actions: [
               IconButton(
-                icon: const Icon(Icons.logout),
+                icon: const Icon(Icons.logout_rounded),
                 onPressed: _showLogoutDialog,
                 tooltip: 'Déconnexion',
               ),
+              const SizedBox(width: 8),
             ],
           ),
           body: IndexedStack(
@@ -352,7 +366,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               _buildHomeContent(attendanceDocs),
               // Historique détaillé
               ListView.builder(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(24),
                 itemCount: attendanceDocs.length,
                 itemBuilder: (context, index) {
                   final data = attendanceDocs[index].data() as Map<String, dynamic>;
@@ -365,61 +379,90 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       : '';
                       
                   return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
+                    margin: const EdgeInsets.only(bottom: 12),
                     child: ListTile(
-                      leading: const Icon(Icons.class_, color: Colors.blue),
-                      title: Text(course, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text('Salle: $room | Enseignant: $teacher\n$dateStr'),
-                      trailing: const Icon(Icons.verified, color: Colors.green),
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.class_rounded, color: AppTheme.primary),
+                      ),
+                      title: Text(course, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textPrimary)),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text('Salle $room • $teacher\n$dateStr', style: const TextStyle(height: 1.4)),
+                      ),
+                      trailing: const Icon(Icons.verified_rounded, color: AppTheme.success),
                     ),
                   );
                 },
               ),
-              // Profil de l'étudiant
+              // Profil
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.blue,
-                        child: Icon(Icons.school, size: 50, color: Colors.white),
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppTheme.primary, width: 2),
+                        ),
+                        child: const CircleAvatar(
+                          radius: 50,
+                          backgroundColor: AppTheme.primary,
+                          child: Icon(Icons.person_rounded, size: 50, color: Colors.white),
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       Text(
                         _studentName,
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         _studentEmail,
-                        style: const TextStyle(fontSize: 16, color: Colors.grey),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textSecondary),
                       ),
-                      const SizedBox(height: 30),
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Rôle utilisateur:'),
-                                  Text('Étudiant'.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
-                                ],
+                      const SizedBox(height: 40),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppTheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppTheme.border),
+                        ),
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.badge_rounded, color: AppTheme.textSecondary),
+                              title: const Text('Rôle'),
+                              trailing: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: AppTheme.primary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: const Text(
+                                  'ÉTUDIANT',
+                                  style: TextStyle(color: AppTheme.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                                ),
                               ),
-                              const Divider(),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('Total émargements:'),
-                                  Text('${attendanceDocs.length}', style: const TextStyle(fontWeight: FontWeight.bold)),
-                                ],
+                            ),
+                            const Divider(height: 1),
+                            ListTile(
+                              leading: const Icon(Icons.history_edu_rounded, color: AppTheme.textSecondary),
+                              title: const Text('Total présences'),
+                              trailing: Text(
+                                '${attendanceDocs.length}',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -429,23 +472,18 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Colors.blue,
-            unselectedItemColor: Colors.grey,
-            currentIndex: _currentIndex == 0 ? 0 : (_currentIndex == 1 ? 2 : 3), // Adapter pour correspondre aux items de la bar
+            currentIndex: _currentIndex == 0 ? 0 : (_currentIndex == 1 ? 2 : 3),
             items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-              BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner), label: 'Scanner'),
-              BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Historique'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+              BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'Accueil'),
+              BottomNavigationBarItem(icon: Icon(Icons.qr_code_scanner_rounded), label: 'Scanner'),
+              BottomNavigationBarItem(icon: Icon(Icons.history_rounded), label: 'Historique'),
+              BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'Profil'),
             ],
             onTap: (index) {
               if (index == 1) {
-                // Rediriger vers l'appareil photo scanner
                 Navigator.pushNamed(context, '/scanner');
               } else {
                 setState(() {
-                  // Maper les index de la BottomBar aux index réels du IndexedStack
                   if (index == 0) _currentIndex = 0;
                   if (index == 2) _currentIndex = 1;
                   if (index == 3) _currentIndex = 2;
