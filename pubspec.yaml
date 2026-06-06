@@ -46,7 +46,7 @@ dependencies:
   device_info_plus: ^10.1.0
   fl_chart: ^0.68.0
   google_fonts: ^6.2.1
-  animate_do: ^5.1.0
+  animate_do: ^3.3.4
 
   image_picker: ^1.0.5
 
