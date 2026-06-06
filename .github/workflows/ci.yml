@@ -23,11 +23,9 @@ jobs:
       # ── Métrique : pipeline démarré ───────────────────────
       - name: Metric - build started
         run: |
-          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
-          # HELP ci_build_started Timestamp de démarrage du pipeline
+          printf '# HELP ci_build_started Timestamp de démarrage du pipeline
           # TYPE ci_build_started gauge
-          ci_build_started{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} $(date +%s)
-          METRICS
+          ci_build_started{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} $(date +%s)' | curl -s --max-time 10 --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions
 
       # ── Setup Java ────────────────────────────────────────
       - name: Setup Java 17
@@ -64,11 +62,9 @@ jobs:
         if: always()
         run: |
           TEST_STATUS=${{ steps.tests.outcome == 'success' && '1' || '0' }}
-          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
-          # HELP ci_tests_passed Tests Flutter passés avec succès (1=ok, 0=fail)
+          printf '# HELP ci_tests_passed Tests Flutter passés avec succès (1=ok, 0=fail)
           # TYPE ci_tests_passed gauge
-          ci_tests_passed{branch="${{ github.ref_name }}"} $TEST_STATUS
-          METRICS
+          ci_tests_passed{branch="${{ github.ref_name }}"} $TEST_STATUS' | curl -s --max-time 10 --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions
 
       # ── Build APK release ─────────────────────────────────
       - name: Build APK
@@ -79,8 +75,7 @@ jobs:
       - name: Metric - build success
         if: success()
         run: |
-          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
-          # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
+          printf '# HELP ci_build_success Build APK réussi (1=ok, 0=fail)
           # TYPE ci_build_success gauge
           ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 1
           # HELP ci_last_build_timestamp Timestamp du dernier build réussi
@@ -88,18 +83,15 @@ jobs:
           ci_last_build_timestamp{branch="${{ github.ref_name }}"} $(date +%s)
           # HELP ci_build_duration_seconds Durée approximative du build
           # TYPE ci_build_duration_seconds gauge
-          ci_build_total{branch="${{ github.ref_name }}"} 1
-          METRICS
+          ci_build_total{branch="${{ github.ref_name }}"} 1' | curl -s --max-time 10 --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions
 
       # ── Métrique : build échoué ───────────────────────────
       - name: Metric - build failed
         if: failure()
         run: |
-          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
-          # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
+          printf '# HELP ci_build_success Build APK réussi (1=ok, 0=fail)
           # TYPE ci_build_success gauge
-          ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 0
-          METRICS
+          ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 0' | curl -s --max-time 10 --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions
 
       # ── Upload APK artifact GitHub ────────────────────────
       - name: Upload APK
