@@ -23,11 +23,11 @@ jobs:
       # ── Métrique : pipeline démarré ───────────────────────
       - name: Metric - build started
         run: |
-          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
           # HELP ci_build_started Timestamp de démarrage du pipeline
           # TYPE ci_build_started gauge
           ci_build_started{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} $(date +%s)
-          EOF
+          METRICS
 
       # ── Setup Java ────────────────────────────────────────
       - name: Setup Java 17
@@ -64,11 +64,11 @@ jobs:
         if: always()
         run: |
           TEST_STATUS=${{ steps.tests.outcome == 'success' && '1' || '0' }}
-          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
           # HELP ci_tests_passed Tests Flutter passés avec succès (1=ok, 0=fail)
           # TYPE ci_tests_passed gauge
           ci_tests_passed{branch="${{ github.ref_name }}"} $TEST_STATUS
-          EOF
+          METRICS
 
       # ── Build APK release ─────────────────────────────────
       - name: Build APK
@@ -79,7 +79,7 @@ jobs:
       - name: Metric - build success
         if: success()
         run: |
-          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
           # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
           # TYPE ci_build_success gauge
           ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 1
@@ -89,17 +89,17 @@ jobs:
           # HELP ci_build_duration_seconds Durée approximative du build
           # TYPE ci_build_duration_seconds gauge
           ci_build_total{branch="${{ github.ref_name }}"} 1
-          EOF
+          METRICS
 
       # ── Métrique : build échoué ───────────────────────────
       - name: Metric - build failed
         if: failure()
         run: |
-          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          curl -s --data-binary @- http://194.164.72.157:9091/metrics/job/digital_list/instance/github_actions << METRICS
           # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
           # TYPE ci_build_success gauge
           ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 0
-          EOF
+          METRICS
 
       # ── Upload APK artifact GitHub ────────────────────────
       - name: Upload APK
