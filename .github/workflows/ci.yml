@@ -22,6 +22,7 @@ jobs:
 
       # ── Métrique : pipeline démarré ───────────────────────
       - name: Metric - build started
+        continue-on-error: true
         run: |
           printf '# HELP ci_build_started Timestamp de démarrage du pipeline
           # TYPE ci_build_started gauge
@@ -59,6 +60,7 @@ jobs:
 
       # ── Métrique : résultat tests ─────────────────────────
       - name: Metric - tests result
+        continue-on-error: true
         if: always()
         run: |
           TEST_STATUS=${{ steps.tests.outcome == 'success' && '1' || '0' }}
@@ -73,6 +75,7 @@ jobs:
 
       # ── Métrique : build réussi ───────────────────────────
       - name: Metric - build success
+        continue-on-error: true
         if: success()
         run: |
           printf '# HELP ci_build_success Build APK réussi (1=ok, 0=fail)
@@ -87,6 +90,7 @@ jobs:
 
       # ── Métrique : build échoué ───────────────────────────
       - name: Metric - build failed
+        continue-on-error: true
         if: failure()
         run: |
           printf '# HELP ci_build_success Build APK réussi (1=ok, 0=fail)
