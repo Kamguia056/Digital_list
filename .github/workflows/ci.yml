@@ -1,0 +1,110 @@
+name: Digital List CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  PUSHGATEWAY_URL: http://194.164.72.157:9091
+
+jobs:
+  test-and-build:
+    name: Test & Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── Métrique : pipeline démarré ───────────────────────
+      - name: Metric - build started
+        run: |
+          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          # HELP ci_build_started Timestamp de démarrage du pipeline
+          # TYPE ci_build_started gauge
+          ci_build_started{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} $(date +%s)
+          EOF
+
+      # ── Setup Java ────────────────────────────────────────
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # ── Setup Flutter ─────────────────────────────────────
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.0'
+          channel: 'stable'
+
+      # ── Dépendances ───────────────────────────────────────
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ── Analyse statique ──────────────────────────────────
+      - name: Flutter analyze
+        id: analyze
+        run: flutter analyze --no-fatal-infos
+        continue-on-error: true
+
+      # ── Tests unitaires ───────────────────────────────────
+      - name: Run tests
+        id: tests
+        run: flutter test --coverage
+        continue-on-error: true
+
+      # ── Métrique : résultat tests ─────────────────────────
+      - name: Metric - tests result
+        if: always()
+        run: |
+          TEST_STATUS=${{ steps.tests.outcome == 'success' && '1' || '0' }}
+          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          # HELP ci_tests_passed Tests Flutter passés avec succès (1=ok, 0=fail)
+          # TYPE ci_tests_passed gauge
+          ci_tests_passed{branch="${{ github.ref_name }}"} $TEST_STATUS
+          EOF
+
+      # ── Build APK release ─────────────────────────────────
+      - name: Build APK
+        id: build
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # ── Métrique : build réussi ───────────────────────────
+      - name: Metric - build success
+        if: success()
+        run: |
+          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
+          # TYPE ci_build_success gauge
+          ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 1
+          # HELP ci_last_build_timestamp Timestamp du dernier build réussi
+          # TYPE ci_last_build_timestamp gauge
+          ci_last_build_timestamp{branch="${{ github.ref_name }}"} $(date +%s)
+          # HELP ci_build_duration_seconds Durée approximative du build
+          # TYPE ci_build_duration_seconds gauge
+          ci_build_total{branch="${{ github.ref_name }}"} 1
+          EOF
+
+      # ── Métrique : build échoué ───────────────────────────
+      - name: Metric - build failed
+        if: failure()
+        run: |
+          cat <<EOF | curl -s --data-binary @- ${PUSHGATEWAY_URL}/metrics/job/digital_list/instance/github_actions
+          # HELP ci_build_success Build APK réussi (1=ok, 0=fail)
+          # TYPE ci_build_success gauge
+          ci_build_success{branch="${{ github.ref_name }}",commit="${{ github.sha }}"} 0
+          EOF
+
+      # ── Upload APK artifact GitHub ────────────────────────
+      - name: Upload APK
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
