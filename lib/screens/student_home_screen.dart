@@ -111,7 +111,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primary.withOpacity(0.3),
+                    color: AppTheme.primary.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -135,7 +135,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(Icons.trending_up, color: Colors.white, size: 20),
@@ -171,7 +171,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     child: LinearProgressIndicator(
                       value: attendancePercentage,
                       minHeight: 8,
-                      backgroundColor: Colors.white.withOpacity(0.2),
+                      backgroundColor: Colors.white.withValues(alpha: 0.2),
                       valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   ),
@@ -197,7 +197,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                   border: Border.all(color: AppTheme.border),
                   boxShadow: [
                     BoxShadow(
-                      color: AppTheme.textPrimary.withOpacity(0.02),
+                      color: AppTheme.textPrimary.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -208,7 +208,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.primary.withOpacity(0.1),
+                        color: AppTheme.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.qr_code_scanner_rounded, size: 40, color: AppTheme.primary),
@@ -256,7 +256,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.history_rounded, size: 48, color: AppTheme.textSecondary.withOpacity(0.5)),
+                    Icon(Icons.history_rounded, size: 48, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
                     const SizedBox(height: 16),
                     const Text(
                       'Aucune présence enregistrée.',
@@ -298,7 +298,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppTheme.success.withOpacity(0.1),
+                            color: AppTheme.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.check_circle_rounded, color: AppTheme.success),
@@ -385,7 +385,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                       leading: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: AppTheme.primary.withOpacity(0.1),
+                          color: AppTheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.class_rounded, color: AppTheme.primary),
@@ -444,7 +444,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
                               trailing: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: AppTheme.primary.withOpacity(0.1),
+                                  color: AppTheme.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text(

@@ -1,0 +1,94 @@
+# ============================================================
+# Digital List — Dockerfile.web
+# Description : Build Flutter Web + Serveur NGINX
+#               pour le conteneur digitallist_app (dashboard admin)
+# Usage :
+#   docker build -f Dockerfile.web -t digitallist/app:latest .
+#   docker run -p 3000:80 digitallist/app:latest
+# ============================================================
+
+# ── Stage 1 : Build Flutter Web ─────────────────────────────
+FROM debian:bullseye-slim AS web-builder
+
+# Variables d'environnement Flutter
+ENV FLUTTER_VERSION=3.22.0
+ENV FLUTTER_HOME=/opt/flutter
+ENV PATH="${FLUTTER_HOME}/bin:${PATH}"
+ENV PUB_CACHE=/root/.pub-cache
+
+# Installation des dépendances système
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    unzip \
+    xz-utils \
+    ca-certificates \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Installation du SDK Flutter
+RUN git clone \
+    --depth 1 \
+    --branch ${FLUTTER_VERSION} \
+    https://github.com/flutter/flutter.git \
+    ${FLUTTER_HOME} \
+    && flutter precache --web \
+    && flutter config --enable-web \
+    && flutter doctor
+
+# Répertoire de travail
+WORKDIR /app
+
+# Copie des fichiers de dépendances en premier (cache Docker)
+COPY pubspec.yaml pubspec.lock ./
+RUN flutter pub get
+
+# Copie du code source
+COPY . .
+
+# Build Flutter Web en mode release
+# --web-renderer canvaskit : meilleur rendu graphique, adapté aux dashboards
+# --dart-define : variables d'environnement injectées au build
+RUN flutter build web \
+    --release \
+    --web-renderer canvaskit \
+    --dart-define=FLUTTER_WEB_USE_SKIA=true \
+    --no-tree-shake-icons \
+    --pwa-strategy=offline-first
+
+# ── Stage 2 : Serveur NGINX ─────────────────────────────────
+FROM nginx:1.25-alpine AS production
+
+# Métadonnées de l'image
+LABEL maintainer="Digital List Team <digital-list@ict-university.cm>"
+LABEL project="Digital List — SEN3244 ICT University"
+LABEL version="1.0.0"
+LABEL description="Application Flutter Web — Dashboard Digital List"
+
+# Copie des fichiers Flutter Web buildés
+COPY --from=web-builder /app/build/web /usr/share/nginx/html
+
+# Configuration NGINX personnalisée
+COPY docker/nginx/nginx.web.conf /etc/nginx/conf.d/default.conf
+
+# Création d'un utilisateur non-root pour la sécurité
+RUN addgroup -g 1001 -S flutterapp \
+    && adduser -u 1001 -S flutterapp -G flutterapp \
+    && chown -R flutterapp:flutterapp /usr/share/nginx/html \
+    && chown -R flutterapp:flutterapp /var/cache/nginx \
+    && chown -R flutterapp:flutterapp /var/log/nginx \
+    && touch /var/run/nginx.pid \
+    && chown -R flutterapp:flutterapp /var/run/nginx.pid
+
+# Passage en utilisateur non-root
+USER flutterapp
+
+# Port exposé (NGINX écoute sur 80)
+EXPOSE 80
+
+# Health check pour Kubernetes liveness/readiness probes
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:80/index.html || exit 1
+
+# Démarrage de NGINX en mode foreground (requis pour Docker)
+CMD ["nginx", "-g", "daemon off;"]

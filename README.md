@@ -31,35 +31,35 @@
 **Digital List** est une application mobile multiplateforme (Android / iOS) développée avec Flutter qui remplace les feuilles d'émargement papier par un système dématérialisé, sécurisé et traçable en temps réel.
 
 ### Problématique résolue
-- ❌ Fraude par émargement à la place d'un autre
-- ❌ Perte des feuilles de présence
-- ❌ Absence de statistiques en temps réel
-- ❌ Processus lent et manuel
+-  Fraude par émargement à la place d'un autre
+-  Perte des feuilles de présence
+-  Absence de statistiques en temps réel
+-  Processus lent et manuel
 
 ### Solution apportée
-- ✅ QR Code unique par séance avec expiration (30 min)
-- ✅ Verrouillage par appareil (1 compte = 1 téléphone)
-- ✅ Détection de GPS simulé (anti-fraude)
-- ✅ Tableau de bord temps réel avec statistiques
-- ✅ Export PDF de feuilles d'émargement
+-  QR Code unique par séance avec expiration (30 min)
+-  Verrouillage par appareil (1 compte = 1 téléphone)
+-  Détection de GPS simulé (anti-fraude)
+-  Tableau de bord temps réel avec statistiques
+-  Export PDF de feuilles d'émargement
 
 ---
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-### 👨‍🎓 Étudiant
+### Étudiant
 - Inscription et connexion sécurisée
 - Scanner QR Code pour valider sa présence
 - Historique des présences
 - Statistiques personnelles
 
-### 👨‍🏫 Enseignant
+### Enseignant
 - Création de séances de cours avec QR Code
 - Suivi des présents en temps réel
 - Export PDF de la feuille d'émargement
 - Clôture de séance
 
-### 👨‍💼 Administrateur
+### Administrateur
 - Tableau de bord avec KPIs globaux
 - Gestion des utilisateurs (blocage / déblocage)
 - Approbation des demandes d'enseignants
@@ -67,7 +67,7 @@
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 lib/
@@ -101,7 +101,7 @@ lib/
 
 ---
 
-## 🛠️ Technologies
+## Technologies
 
 | Catégorie | Technologie | Version |
 |---|---|---|
@@ -124,7 +124,7 @@ lib/
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Prérequis
 ```bash
@@ -147,7 +147,7 @@ flutter pub get
 
 ---
 
-## 🔥 Configuration Firebase
+## Configuration Firebase
 
 ### 1. Créer un projet Firebase
 1. Aller sur [console.firebase.google.com](https://console.firebase.google.com)
@@ -174,7 +174,7 @@ firebase deploy --only firestore:rules
 
 ---
 
-## ▶️ Lancement
+## Lancement
 
 ```bash
 # Mode développement
@@ -191,7 +191,7 @@ flutter run --dart-define=USE_EMULATOR=true
 
 ---
 
-## 🧪 Tests
+## Tests
 
 ```bash
 # Tous les tests
@@ -213,7 +213,7 @@ open coverage/html/index.html
 
 ---
 
-## 📦 Déploiement
+## Déploiement
 
 ### Android APK
 ```bash
@@ -235,7 +235,7 @@ flutter build ios --release
 
 ---
 
-## ⚙️ DevOps
+## DevOps
 
 ### Docker
 ```bash
@@ -272,7 +272,7 @@ ansible-playbook -i ansible/inventory.ini ansible/deploy_app.yml \
 
 ---
 
-## 🤝 Contribution
+## Contribution
 
 ```bash
 # Créer une branche feature
@@ -297,10 +297,10 @@ git push origin feature/ma-fonctionnalite
 
 ---
 
-## 📄 Licence
+## Licence
 
 MIT License — Copyright © 2026 Digital List
 
 ---
 
-*Développé avec ❤️ par l'équipe Digital List*
+

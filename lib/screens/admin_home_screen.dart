@@ -85,7 +85,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
           border: Border.all(color: AppTheme.border),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.05),
+              color: color.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -98,7 +98,7 @@ class _AdminDashboardState extends State<_AdminDashboard> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 28, color: color),
@@ -171,20 +171,20 @@ class _AdminDashboardState extends State<_AdminDashboard> {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [AppTheme.error.withOpacity(0.8), AppTheme.error],
+                          colors: [AppTheme.error.withValues(alpha: 0.8), AppTheme.error],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
-                          BoxShadow(color: AppTheme.error.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 4)),
+                          BoxShadow(color: AppTheme.error.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 4)),
                         ],
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
                             child: const Icon(Icons.pending_actions_rounded, color: Colors.white, size: 32),
                           ),
                           const SizedBox(width: 16),
@@ -296,7 +296,7 @@ class _AdminRequestsPageState extends State<_AdminRequestsPage> with SingleTicke
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.check_circle_outline_rounded, size: 64, color: AppTheme.success.withOpacity(0.5)),
+                Icon(Icons.check_circle_outline_rounded, size: 64, color: AppTheme.success.withValues(alpha: 0.5)),
                 const SizedBox(height: 16),
                 const Text('Aucune demande en attente.', style: TextStyle(fontSize: 16, color: AppTheme.textSecondary)),
               ],
@@ -326,7 +326,7 @@ class _AdminRequestsPageState extends State<_AdminRequestsPage> with SingleTicke
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
                           child: const Icon(Icons.person_outline_rounded, color: AppTheme.primary),
                         ),
                         const SizedBox(width: 16),
@@ -386,7 +386,7 @@ class _AdminRequestsPageState extends State<_AdminRequestsPage> with SingleTicke
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                           decoration: BoxDecoration(
-                                            color: AppTheme.primary.withOpacity(0.1),
+                                            color: AppTheme.primary.withValues(alpha: 0.1),
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: Text(code, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'monospace', color: AppTheme.primary)),
@@ -446,7 +446,7 @@ class _AdminRequestsPageState extends State<_AdminRequestsPage> with SingleTicke
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isApproved ? AppTheme.success.withOpacity(0.1) : AppTheme.error.withOpacity(0.1),
+                    color: isApproved ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(isApproved ? Icons.check_rounded : Icons.close_rounded, color: isApproved ? AppTheme.success : AppTheme.error),
@@ -461,13 +461,13 @@ class _AdminRequestsPageState extends State<_AdminRequestsPage> with SingleTicke
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                          decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
                           child: Text(req['invitationCode'] ?? '', style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.bold, color: AppTheme.primary, fontSize: 12)),
                         ),
                       )
                     : Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(color: AppTheme.error.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                        decoration: BoxDecoration(color: AppTheme.error.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
                         child: const Text('Rejeté', style: TextStyle(color: AppTheme.error, fontWeight: FontWeight.bold, fontSize: 12)),
                       ),
               ),
@@ -526,7 +526,7 @@ class _AdminSessionsPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.event_busy_rounded, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
+                  Icon(Icons.event_busy_rounded, size: 64, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
                   const SizedBox(height: 16),
                   const Text('Aucune séance active.', style: TextStyle(color: AppTheme.textSecondary)),
                 ],
@@ -555,7 +555,7 @@ class _AdminSessionsPage extends StatelessWidget {
                     contentPadding: const EdgeInsets.all(16),
                     leading: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                      decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                       child: const Icon(Icons.sensors_rounded, color: Colors.orange),
                     ),
                     title: Text(data['course'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold)),

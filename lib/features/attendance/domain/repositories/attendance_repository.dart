@@ -1,6 +1,5 @@
 // lib/features/attendance/domain/repositories/attendance_repository.dart
 import '../entities/attendance_entity.dart';
-import '../../../../core/usecases/usecase.dart';
 import '../usecases/validate_presence_usecase.dart';
 
 abstract class AttendanceRepository {

@@ -43,7 +43,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                 border: const Border(bottom: BorderSide(color: AppTheme.border)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -56,7 +56,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                         child: const Icon(Icons.location_on_rounded, color: AppTheme.primary, size: 20),
                       ),
                       const SizedBox(width: 12),
@@ -68,7 +68,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: AppTheme.success.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                         child: const Icon(Icons.person_rounded, color: AppTheme.success, size: 20),
                       ),
                       const SizedBox(width: 12),
@@ -80,7 +80,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                        decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                         child: const Icon(Icons.tag_rounded, color: Colors.orange, size: 20),
                       ),
                       const SizedBox(width: 12),
@@ -112,7 +112,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
+                        Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
                         const SizedBox(height: 16),
                         const Text('Aucun étudiant présent.', style: TextStyle(color: AppTheme.textSecondary)),
                       ],
@@ -131,7 +131,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                             decoration: BoxDecoration(
-                              color: AppTheme.success.withOpacity(0.1),
+                              color: AppTheme.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -167,7 +167,7 @@ class AdminSessionDetailScreen extends StatelessWidget {
                                 leading: Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: AppTheme.success.withOpacity(0.1),
+                                    color: AppTheme.success.withValues(alpha: 0.1),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(Icons.check_rounded, color: AppTheme.success, size: 18),

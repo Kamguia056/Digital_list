@@ -213,7 +213,7 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
                     color: AppTheme.primary,
                     boxShadow: [
                       BoxShadow(
-                        color: AppTheme.primary.withOpacity(0.6),
+                        color: AppTheme.primary.withValues(alpha: 0.6),
                         blurRadius: 12,
                         spreadRadius: 2,
                       )
@@ -238,7 +238,7 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 20,
                       offset: const Offset(0, -5),
                     ),
@@ -276,7 +276,7 @@ class _ScannerScreenState extends State<ScannerScreen> with SingleTickerProvider
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: _isOnCampus ? AppTheme.success.withOpacity(0.1) : AppTheme.error.withOpacity(0.1),
+                                  color: _isOnCampus ? AppTheme.success.withValues(alpha: 0.1) : AppTheme.error.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(

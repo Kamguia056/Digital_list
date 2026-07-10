@@ -38,12 +38,12 @@ class ValidationSuccessScreen extends StatelessWidget {
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: AppTheme.success.withOpacity(0.1),
+                        color: AppTheme.success.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppTheme.success.withOpacity(0.3), width: 2),
+                        border: Border.all(color: AppTheme.success.withValues(alpha: 0.3), width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: AppTheme.success.withOpacity(0.2),
+                            color: AppTheme.success.withValues(alpha: 0.2),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
@@ -84,7 +84,7 @@ class ValidationSuccessScreen extends StatelessWidget {
                         border: Border.all(color: AppTheme.border),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.02),
+                            color: Colors.black.withValues(alpha: 0.02),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),

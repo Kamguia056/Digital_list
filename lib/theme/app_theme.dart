@@ -25,7 +25,6 @@ class AppTheme {
         primary: primary,
         secondary: secondary,
         surface: surface,
-        background: background,
         error: error,
       ),
       textTheme: GoogleFonts.interTextTheme().copyWith(
@@ -80,7 +79,7 @@ class AppTheme {
           borderSide: const BorderSide(color: error),
         ),
         labelStyle: GoogleFonts.inter(color: textSecondary),
-        hintStyle: GoogleFonts.inter(color: textSecondary.withOpacity(0.5)),
+        hintStyle: GoogleFonts.inter(color: textSecondary.withValues(alpha: 0.5)),
       ),
 
       bottomNavigationBarTheme: BottomNavigationBarThemeData(

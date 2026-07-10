@@ -195,7 +195,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: AppTheme.primary.withOpacity(0.1),
+                      color: AppTheme.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.qr_code_rounded, size: 60, color: AppTheme.primary),
@@ -262,7 +262,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         border: Border.all(color: AppTheme.border),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -424,7 +424,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: AppTheme.primary.withOpacity(0.1),
+                                      color: AppTheme.primary.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Text(
@@ -657,7 +657,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     contentPadding: const EdgeInsets.all(16),
                     leading: Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: AppTheme.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                      decoration: BoxDecoration(color: AppTheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                       child: const Icon(Icons.class_rounded, color: AppTheme.primary),
                     ),
                     title: Text(course, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -667,7 +667,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     ),
                     trailing: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(color: AppTheme.success.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+                      decoration: BoxDecoration(color: AppTheme.success.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
                       child: Text('$count présents', style: const TextStyle(color: AppTheme.success, fontWeight: FontWeight.bold, fontSize: 12)),
                     ),
                     onTap: () async {

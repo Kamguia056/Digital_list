@@ -1,0 +1,87 @@
+# ============================================================
+# Digital List — Kubernetes Namespace
+# Fichier : k8s/namespace.yaml
+# Description : Isolation de tous les ressources du projet
+#               Digital List dans un namespace dédié.
+# Usage : kubectl apply -f k8s/namespace.yaml
+# ============================================================
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: digitallist
+  labels:
+    app: digitallist
+    environment: production
+    team: ict-university
+    project: digital-list-sen3244
+  annotations:
+    description: "Namespace dédié au projet Digital List — SEN3244 ICT University"
+    github: "https://github.com/Kamguia056/Digital_list"
+    contact: "digital-list-team@ict-university.cm"
+
+---
+# ============================================================
+# ResourceQuota — Limite les ressources consommées par le
+# namespace pour éviter de saturer le VPS.
+# ============================================================
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: digitallist-quota
+  namespace: digitallist
+spec:
+  hard:
+    # Pods
+    pods: "20"
+    # CPU : total autorisé dans le namespace
+    requests.cpu: "2"
+    limits.cpu: "4"
+    # RAM : total autorisé dans le namespace
+    requests.memory: "2Gi"
+    limits.memory: "4Gi"
+    # Services
+    services: "10"
+    services.loadbalancers: "1"
+    # Stockage persistant
+    persistentvolumeclaims: "5"
+    requests.storage: "20Gi"
+    # ConfigMaps et Secrets
+    configmaps: "10"
+    secrets: "10"
+
+---
+# ============================================================
+# LimitRange — Définit les limites par défaut pour chaque
+# conteneur qui ne spécifie pas de requests/limits.
+# Évite qu'un pod sans limites consomme toutes les ressources.
+# ============================================================
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: digitallist-limitrange
+  namespace: digitallist
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      max:
+        cpu: "2"
+        memory: "2Gi"
+      min:
+        cpu: "50m"
+        memory: "64Mi"
+    - type: Pod
+      max:
+        cpu: "4"
+        memory: "4Gi"
+    - type: PersistentVolumeClaim
+      max:
+        storage: "10Gi"
+      min:
+        storage: "1Gi"

@@ -37,7 +37,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> with SingleTickerPr
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withOpacity(0.5)),
+                Icon(Icons.people_outline_rounded, size: 64, color: AppTheme.textSecondary.withValues(alpha: 0.5)),
                 const SizedBox(height: 16),
                 Text('Aucun $role inscrit.', style: const TextStyle(color: AppTheme.textSecondary)),
               ],
@@ -67,7 +67,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> with SingleTickerPr
                   border: Border.all(color: AppTheme.border),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -78,7 +78,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> with SingleTickerPr
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: isBlocked ? AppTheme.error.withOpacity(0.1) : (role == 'teacher' ? AppTheme.success.withOpacity(0.1) : Colors.blue.withOpacity(0.1)),
+                      color: isBlocked ? AppTheme.error.withValues(alpha: 0.1) : (role == 'teacher' ? AppTheme.success.withValues(alpha: 0.1) : Colors.blue.withValues(alpha: 0.1)),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -100,7 +100,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> with SingleTickerPr
                           const SizedBox(height: 4),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(color: AppTheme.error.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                            decoration: BoxDecoration(color: AppTheme.error.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                             child: const Text('🔒 Compte suspendu', style: TextStyle(color: AppTheme.error, fontSize: 11, fontWeight: FontWeight.bold)),
                           ),
                         ]
