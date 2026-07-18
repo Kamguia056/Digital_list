@@ -1,10 +1,6 @@
 pipeline {
     agent none
 
-    environment {
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('firebase-service-account')
-    }
-
     stages {
         stage('Checkout') {
             agent any
@@ -49,6 +45,9 @@ pipeline {
                     image 'node:20-bullseye'
                     args '-u root:root'
                 }
+            }
+            environment {
+                GOOGLE_APPLICATION_CREDENTIALS = credentials('firebase-service-account')
             }
             steps {
                 unstash 'source'
