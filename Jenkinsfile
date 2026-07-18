@@ -16,7 +16,10 @@ pipeline {
 
         stage('Build') {
             agent {
-                docker { image 'ghcr.io/cirruslabs/flutter:3.29.0' args '-u root:root' }
+                docker {
+                    image 'ghcr.io/cirruslabs/flutter:3.29.0'
+                    args '-u root:root'
+                }
             }
             steps {
                 unstash 'source'
@@ -28,7 +31,10 @@ pipeline {
 
         stage('Test') {
             agent {
-                docker { image 'ghcr.io/cirruslabs/flutter:3.29.0' args '-u root:root' }
+                docker {
+                    image 'ghcr.io/cirruslabs/flutter:3.29.0'
+                    args '-u root:root'
+                }
             }
             steps {
                 unstash 'source'
@@ -39,7 +45,10 @@ pipeline {
 
         stage('Deploy - Firebase App Distribution') {
             agent {
-                docker { image 'node:20-bullseye' args '-u root:root' }
+                docker {
+                    image 'node:20-bullseye'
+                    args '-u root:root'
+                }
             }
             steps {
                 unstash 'source'
@@ -48,7 +57,7 @@ pipeline {
                 npm install -g firebase-tools
                 firebase appdistribution:distribute \
                   build/app/outputs/flutter-apk/app-release.apk \
-                  --app 1:1027367631986:android:797999898369d0a19f56eb \
+                  --app YOUR_FIREBASE_APP_ID \
                   --groups "testers"
                 '''
             }
