@@ -57,7 +57,7 @@ pipeline {
                 npm install -g firebase-tools
                 firebase appdistribution:distribute \
                   build/app/outputs/flutter-apk/app-release.apk \
-                  --app YOUR_FIREBASE_APP_ID \
+                  --app 1:1027367631986:android:797999898369d0a19f56eb \
                   --groups "testers"
                 '''
             }
