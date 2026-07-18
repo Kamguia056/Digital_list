@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('firebase-service-account')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'flutter pub get'
+                sh 'flutter build apk --release'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'flutter test'
+            }
+        }
+
+        stage('Deploy - Firebase App Distribution') {
+            steps {
+                sh '''
+                firebase appdistribution:distribute \
+                  build/app/outputs/flutter-apk/app-release.apk \
+                  --app 1:1027367631986:android:797999898369d0a19f56eb \
+                  --groups "testers"
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline terminé avec succès ✅'
+        }
+        failure {
+            echo 'Le pipeline a échoué ❌'
+        }
+    }
+}
